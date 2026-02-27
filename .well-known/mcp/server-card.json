@@ -1,0 +1,22 @@
+{
+  "name": "gitrama-mcp",
+  "description": "AI-powered Git workflow intelligence — commit messages, branch names, PR descriptions, and stream-based context management",
+  "version": "1.1.0",
+  "homepage": "https://gitrama.ai",
+  "tools": [
+    {"name": "gitrama_commit", "description": "Analyzes staged diff, generates AI commit message, executes commit"},
+    {"name": "gitrama_stage_and_commit", "description": "Stages all changes then generates and commits in one shot"},
+    {"name": "gitrama_commit_quality", "description": "Scores a commit message 0-100 with improvement suggestions"},
+    {"name": "gitrama_branch", "description": "Generates AI branch name from natural language and creates branch"},
+    {"name": "gitrama_branch_suggest", "description": "Returns 3 branch name suggestions without creating"},
+    {"name": "gitrama_pr", "description": "Generates full AI PR description from branch diff"},
+    {"name": "gitrama_changelog", "description": "Generates structured changelog from commit history"},
+    {"name": "gitrama_stream_status", "description": "Returns current stream, branch, uncommitted changes, recent commits"},
+    {"name": "gitrama_stream_switch", "description": "Switches active work stream and updates AI context"},
+    {"name": "gitrama_stream_list", "description": "Lists all available streams with status and branch associations"}
+  ],
+  "transport": "stdio",
+  "install": "pip install gitrama-mcp",
+  "command": "gitrama-mcp",
+  "categories": ["developer-tools", "git", "version-control"]
+}
