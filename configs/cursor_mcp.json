@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "gitrama": {
+      "command": "gitrama-mcp",
+      "env": {
+        "GTR_CWD": "${workspaceFolder}"
+      }
+    }
+  }
+}

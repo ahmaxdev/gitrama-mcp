@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "gitrama": {
+      "command": "gitrama-mcp"
+    }
+  }
+}

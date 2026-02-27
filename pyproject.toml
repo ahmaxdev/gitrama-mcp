@@ -1,0 +1,42 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "gitrama-mcp"
+version = "1.1.1"
+description = "MCP Server for Gitrama — AI-powered Git intelligence for your IDE"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Alfonso Harding", email = "alfonso@gitrama.ai" },
+]
+keywords = ["mcp", "git", "ai", "commit", "gitrama", "cursor", "claude"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Version Control :: Git",
+]
+dependencies = [
+    "mcp>=1.2.0",
+    "gitrama>=1.0.3",
+]
+
+[project.urls]
+Homepage = "https://gitrama.ai"
+Repository = "https://github.com/ahmaxdev/gitrama-mcp"
+Documentation = "https://gitrama.ai/docs_v4"
+Issues = "https://github.com/ahmaxdev/gitrama-mcp/issues"
+
+[project.scripts]
+gitrama-mcp = "gitrama_mcp.server:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/gitrama_mcp"]
