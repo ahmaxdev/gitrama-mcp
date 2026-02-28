@@ -57,6 +57,7 @@ async def _run_gtr(args: list[str], cwd: Optional[str] = None, timeout: int = 12
     try:
         proc = await asyncio.create_subprocess_exec(
             *cmd,
+            stdin=asyncio.subprocess.DEVNULL,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             cwd=work_dir,
@@ -236,7 +237,7 @@ async def gitrama_ask(
                "staged" (only staged changes).
         model: Optional AI model override.
     """
-    args = ["chat", "--ask", question]
+    args = ["chat", "ask", question]
     if scope != "auto":
         args.extend(["--scope", scope])
     if model:
