@@ -346,7 +346,7 @@ async def gitrama_changelog(
     human-readable changelog. Great for release notes.
 
     Args:
-        since: Start ref — tag, branch, or commit hash (e.g., "v1.1.1").
+        since: Start ref — tag, branch, or commit hash (e.g., "v1.1.2").
                Defaults to the last tag.
         until: End ref (default: HEAD).
         format: Output format — "markdown" (default) or "json".
