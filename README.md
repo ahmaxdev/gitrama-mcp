@@ -277,7 +277,7 @@ Generate a changelog.
 | `format` | string | `"markdown"` | `"markdown"` or `"json"` |
 | `model` | string | `""` | AI model override |
 
-**Example prompt:** *"Generate a changelog since v1.1.3"*
+**Example prompt:** *"Generate a changelog since v1.1.4"*
 
 ---
 

@@ -1,5 +1,5 @@
 """
-Gitrama MCP Server — 11 tools for AI-powered Git intelligence.
+Gitrama MCP Server — 10 tools for AI-powered Git intelligence.
 
 Exposes Gitrama's CLI capabilities as MCP tools for use in:
 - Cursor
@@ -107,31 +107,22 @@ def _format_result(result: dict, context: str = "") -> str:
 
 @mcp.tool()
 async def gitrama_commit(
-    message_type: str = "conventional",
-    context: str = "",
-    model: str = "",
+    message: str = "",
 ) -> str:
     """
     Generate an AI-powered commit message for currently staged changes.
 
-    Analyzes the git diff of staged files and produces a high-quality,
-    contextual commit message. Requires files to be staged first (git add).
+    Analyzes the git diff of staged files and produces a conventional
+    commit message following best practices. Requires files to be staged
+    first (git add).
 
     Args:
-        message_type: Commit message style — "conventional" (default),
-                      "detailed", or "simple".
-        context: Optional context to guide the AI (e.g., "fixing auth bug",
-                 "refactoring payment module").
-        model: Optional AI model override (e.g., "gpt-4o", "claude-sonnet-4-20250514",
-               "ollama/llama3").
+        message: Optional custom commit message. If provided, skips AI
+                 generation and uses this message directly.
     """
-    args = ["commit", "--type", message_type]
-    if context:
-        args.extend(["--context", context])
-    if model:
-        args.extend(["--model", model])
-    # Use --yes to auto-confirm in non-interactive mode
-    args.append("--yes")
+    args = ["commit", "-y"]
+    if message:
+        args.extend(["-m", message])
 
     result = await _run_gtr(args)
     return _format_result(result, "Commit created")
@@ -144,22 +135,19 @@ async def gitrama_commit(
 @mcp.tool()
 async def gitrama_stage_and_commit(
     files: str = ".",
-    message_type: str = "conventional",
-    context: str = "",
-    model: str = "",
+    message: str = "",
 ) -> str:
     """
     Stage files and create an AI-powered commit in one step.
 
-    Equivalent to `git add <files> && gtr commit`. Stages the specified
+    Equivalent to `git add <files> && gtr commit -y`. Stages the specified
     files (or all changes), then generates and applies an AI commit message.
 
     Args:
         files: Files to stage — "." for all changes (default), or
                space-separated paths (e.g., "src/auth.py tests/test_auth.py").
-        message_type: Commit style — "conventional", "detailed", or "simple".
-        context: Optional context to guide the AI.
-        model: Optional AI model override.
+        message: Optional custom commit message. If provided, skips AI
+                 generation and uses this message directly.
     """
     # Stage files first
     file_list = files.split() if files != "." else ["."]
@@ -167,6 +155,7 @@ async def gitrama_stage_and_commit(
     try:
         stage_proc = await asyncio.create_subprocess_exec(
             *stage_cmd,
+            stdin=asyncio.subprocess.DEVNULL,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             cwd=_get_cwd(),
@@ -176,44 +165,18 @@ async def gitrama_stage_and_commit(
         return f"❌ Failed to stage files: {e}"
 
     # Now commit
-    return await gitrama_commit(
-        message_type=message_type,
-        context=context,
-        model=model,
-    )
+    return await gitrama_commit(message=message)
 
 
 # ---------------------------------------------------------------------------
-# Tool 3: gitrama_commit_quality
-# ---------------------------------------------------------------------------
-
-@mcp.tool()
-async def gitrama_commit_quality(
-    count: int = 10,
-) -> str:
-    """
-    Analyze the quality of recent commit messages in the repository.
-
-    Scores commits on clarity, specificity, and conventional format adherence.
-    Returns a quality report with per-commit scores and suggestions.
-
-    Args:
-        count: Number of recent commits to analyze (default: 10, max: 50).
-    """
-    count = min(max(count, 1), 50)
-    result = await _run_gtr(["commit", "--quality", "--count", str(count)])
-    return _format_result(result, "Commit quality analysis complete")
-
-
-# ---------------------------------------------------------------------------
-# Tool 4: gitrama_ask
+# Tool 3: gitrama_ask
 # ---------------------------------------------------------------------------
 
 @mcp.tool()
 async def gitrama_ask(
     question: str,
-    scope: str = "auto",
-    model: str = "",
+    stream: str = "",
+    deep: bool = False,
 ) -> str:
     """
     Ask a question about your Git repository and get an AI-powered answer.
@@ -232,81 +195,59 @@ async def gitrama_ask(
 
     Args:
         question: Natural language question about your repository.
-        scope: Context scope — "auto" (default, Gitrama decides), "branch"
-               (current branch only), "full" (entire repo history), or
-               "staged" (only staged changes).
-        model: Optional AI model override.
+        stream: Optional stream context override (wip | hotfix | review | experiment).
+        deep: Enable full repo history access for deeper analysis.
     """
-    args = ["ask", question]
-    if scope != "auto":
-        args.extend(["--scope", scope])
-    if model:
-        args.extend(["--model", model])
+    args = ["ask", "--query", question]
+    if stream:
+        args.extend(["--stream", stream])
+    if deep:
+        args.append("--deep")
     result = await _run_gtr(args, timeout=180)
     return _format_result(result, "Question answered")
 
 
 # ---------------------------------------------------------------------------
-# Tool 5: gitrama_branch
+# Tool 4: gitrama_branch
 # ---------------------------------------------------------------------------
 
 @mcp.tool()
 async def gitrama_branch(
-    name: str,
-    base: str = "",
-) -> str:
-    """
-    Create a new git branch with the specified name.
-
-    Creates and checks out a new branch. Use gitrama_branch_suggest to
-    get AI-suggested branch names first.
-
-    Args:
-        name: Branch name (e.g., "feat/user-auth", "fix/payment-timeout").
-        base: Base branch to create from (default: current branch).
-    """
-    args = ["branch", name]
-    if base:
-        args.extend(["--base", base])
-    result = await _run_gtr(args)
-    return _format_result(result, f"Branch '{name}' created")
-
-
-# ---------------------------------------------------------------------------
-# Tool 6: gitrama_branch_suggest
-# ---------------------------------------------------------------------------
-
-@mcp.tool()
-async def gitrama_branch_suggest(
     description: str,
-    model: str = "",
+    create: bool = True,
 ) -> str:
     """
-    Get AI-suggested branch names based on a task description.
+    Generate an AI-powered branch name from a description.
 
-    Analyzes the description and suggests properly formatted branch names
-    following conventional patterns (feat/, fix/, chore/, etc.).
+    Analyzes your description and generates a conventional branch name
+    following best practices (feat/, fix/, chore/, etc.), then optionally
+    creates and switches to the branch.
+
+    Examples:
+    - "Add user authentication" → feat/add-user-authentication
+    - "Fix memory leak" → fix/memory-leak
+    - "Update docs" → docs/update-docs
 
     Args:
         description: What you're working on (e.g., "add user authentication
                      with OAuth2", "fix timeout in payment processing").
-        model: Optional AI model override.
+        create: If True (default), creates and switches to the new branch.
+                If False, only suggests the branch name without creating it.
     """
-    args = ["branch", "--suggest", description]
-    if model:
-        args.extend(["--model", model])
+    args = ["branch", description]
+    if not create:
+        args.append("--no-create")
     result = await _run_gtr(args)
-    return _format_result(result, "Branch suggestions generated")
+    return _format_result(result, "Branch created")
 
 
 # ---------------------------------------------------------------------------
-# Tool 7: gitrama_pr
+# Tool 5: gitrama_pr
 # ---------------------------------------------------------------------------
 
 @mcp.tool()
 async def gitrama_pr(
     base: str = "",
-    model: str = "",
 ) -> str:
     """
     Generate an AI-powered pull request description.
@@ -317,56 +258,16 @@ async def gitrama_pr(
 
     Args:
         base: Target branch for the PR (default: main or master).
-        model: Optional AI model override.
     """
     args = ["pr"]
     if base:
         args.extend(["--base", base])
-    if model:
-        args.extend(["--model", model])
     result = await _run_gtr(args)
     return _format_result(result, "PR description generated")
 
 
 # ---------------------------------------------------------------------------
-# Tool 8: gitrama_changelog
-# ---------------------------------------------------------------------------
-
-@mcp.tool()
-async def gitrama_changelog(
-    since: str = "",
-    until: str = "",
-    format: str = "markdown",
-    model: str = "",
-) -> str:
-    """
-    Generate an AI-powered changelog from commit history.
-
-    Groups commits by type (features, fixes, etc.) and produces a
-    human-readable changelog. Great for release notes.
-
-    Args:
-        since: Start ref — tag, branch, or commit hash (e.g., "v1.1.3").
-               Defaults to the last tag.
-        until: End ref (default: HEAD).
-        format: Output format — "markdown" (default) or "json".
-        model: Optional AI model override.
-    """
-    args = ["changelog"]
-    if since:
-        args.extend(["--since", since])
-    if until:
-        args.extend(["--until", until])
-    if format:
-        args.extend(["--format", format])
-    if model:
-        args.extend(["--model", model])
-    result = await _run_gtr(args)
-    return _format_result(result, "Changelog generated")
-
-
-# ---------------------------------------------------------------------------
-# Tool 9: gitrama_stream_status
+# Tool 6: gitrama_stream_status
 # ---------------------------------------------------------------------------
 
 @mcp.tool()
@@ -383,7 +284,7 @@ async def gitrama_stream_status() -> str:
 
 
 # ---------------------------------------------------------------------------
-# Tool 10: gitrama_stream_switch
+# Tool 7: gitrama_stream_switch
 # ---------------------------------------------------------------------------
 
 @mcp.tool()
@@ -409,7 +310,7 @@ async def gitrama_stream_switch(
 
 
 # ---------------------------------------------------------------------------
-# Tool 11: gitrama_stream_list
+# Tool 8: gitrama_stream_list
 # ---------------------------------------------------------------------------
 
 @mcp.tool()
@@ -425,12 +326,45 @@ async def gitrama_stream_list() -> str:
 
 
 # ---------------------------------------------------------------------------
+# Tool 9: gitrama_health
+# ---------------------------------------------------------------------------
+
+@mcp.tool()
+async def gitrama_health() -> str:
+    """
+    Check the Gitrama AI server health status.
+
+    Verifies connectivity to the Gitrama AI API and returns
+    the current server status. Useful for diagnosing issues
+    when other commands fail.
+    """
+    result = await _run_gtr(["health"])
+    return _format_result(result, "Health check complete")
+
+
+# ---------------------------------------------------------------------------
+# Tool 10: gitrama_status
+# ---------------------------------------------------------------------------
+
+@mcp.tool()
+async def gitrama_status() -> str:
+    """
+    Show the working tree status with AI interpretation.
+
+    Displays the current git status including staged, unstaged,
+    and untracked files with AI-powered context about the changes.
+    """
+    result = await _run_gtr(["status"])
+    return _format_result(result, "Status retrieved")
+
+
+# ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
 
 def main():
     """Run the Gitrama MCP server."""
-    
+
     # TTY detection — if a human runs this directly, show help and exit
     if sys.stdin.isatty() and os.environ.get("GTR_MCP_TRANSPORT", "stdio") == "stdio":
         print("""
@@ -475,7 +409,6 @@ PyPI:  pip install gitrama-mcp
     else:
         print(f"Unknown transport: {transport}. Use 'stdio' or 'streamable-http'.", file=sys.stderr)
         sys.exit(1)
-
 
 
 if __name__ == "__main__":
