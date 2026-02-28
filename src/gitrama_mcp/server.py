@@ -237,7 +237,7 @@ async def gitrama_ask(
                "staged" (only staged changes).
         model: Optional AI model override.
     """
-    args = ["chat", "ask", question]
+    args = ["ask", question]
     if scope != "auto":
         args.extend(["--scope", scope])
     if model:
@@ -346,7 +346,7 @@ async def gitrama_changelog(
     human-readable changelog. Great for release notes.
 
     Args:
-        since: Start ref — tag, branch, or commit hash (e.g., "v1.1.2").
+        since: Start ref — tag, branch, or commit hash (e.g., "v1.1.3").
                Defaults to the last tag.
         until: End ref (default: HEAD).
         format: Output format — "markdown" (default) or "json".
