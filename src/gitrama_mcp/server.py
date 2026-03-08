@@ -179,24 +179,21 @@ async def gitrama_ask(
     deep: bool = False,
 ) -> str:
     """
-    Ask a question about your Git repository and get an AI-powered answer.
+    Ask a natural language question about your repository.
+Uses Gitrama intelligence to provide context-aware answers.
 
-    Analyzes your repo's commit history, file structure, blame data, and
-    diffs to answer natural language questions. This is Gitrama's core
-    intelligence — the ability to understand your codebase.
+Example questions:
+- "Who owns the auth module?"
+- "When did we last change the payment logic?"
+- "What's the riskiest file in this repo?"
+- "Summarize what happened on this branch"
+- "What changed in the last 3 days?"
+- "Explain the purpose of src/utils/retry.py"
 
-    Example questions:
-    - "Who owns the auth module?"
-    - "When did we last change the payment logic?"
-    - "What's the riskiest file in this repo?"
-    - "Summarize what happened on this branch"
-    - "What changed in the last 3 days?"
-    - "Explain the purpose of src/utils/retry.py"
-
-    Args:
-        question: Natural language question about your repository.
-        stream: Optional stream context override (wip | hotfix | review | experiment).
-        deep: Enable full repo history access for deeper analysis.
+Args:
+    question: Natural language question about your repository.
+    stream: Optional stream context override (wip | hotfix | review | experiment).
+    deep: Enable full repo history access for deeper analysis.
     """
     args = ["ask", "--query", question]
     if stream:
