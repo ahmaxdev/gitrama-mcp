@@ -366,7 +366,7 @@ def main():
     # TTY detection — if a human runs this directly, show help and exit
     if sys.stdin.isatty() and os.environ.get("GTR_MCP_TRANSPORT", "stdio") == "stdio":
         print("""
-🌿 Gitrama MCP Server v1.2.1
+🌿 Gitrama MCP Server v1.2.2
 
 This server uses stdio transport and is designed to run
 inside MCP-compatible AI clients — not directly in a terminal.
