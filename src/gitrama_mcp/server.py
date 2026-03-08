@@ -186,7 +186,6 @@ Example questions:
 - "Who owns the auth module?"
 - "When did we last change the payment logic?"
 - "What's the riskiest file in this repo?"
-- "Summarize what happened on this branch"
 - "What changed in the last 3 days?"
 - "Explain the purpose of src/utils/retry.py"
 
@@ -365,7 +364,7 @@ def main():
     # TTY detection — if a human runs this directly, show help and exit
     if sys.stdin.isatty() and os.environ.get("GTR_MCP_TRANSPORT", "stdio") == "stdio":
         print("""
-🌿 Gitrama MCP Server v1.1.0
+🌿 Gitrama MCP Server v1.2.0
 
 This server uses stdio transport and is designed to run
 inside MCP-compatible AI clients — not directly in a terminal.
