@@ -24,6 +24,7 @@ WORKDIR /app
 # ---------------------------------------------------------------------------
 # Copy only what's needed for install first (better layer caching)
 COPY pyproject.toml .
+COPY README.md .
 COPY src/ ./src/
 
 RUN pip install --no-cache-dir .
