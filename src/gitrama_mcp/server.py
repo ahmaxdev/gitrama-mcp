@@ -476,7 +476,54 @@ async def gitrama_scan() -> str:
     result = await _run_gtr(["scan"], timeout=300)
     return _format_result(result, "Scan complete")
  
- 
+
+
+# ---------------------------------------------------------------------------
+# Tool 15: gitrama_push
+# ---------------------------------------------------------------------------
+
+@mcp.tool()
+async def gitrama_push(
+    remote: str = "origin",
+    branch: str = "",
+    force: bool = False,
+    set_upstream: bool = False,
+) -> str:
+    """
+    Push the current branch to a remote repository.
+
+    Pushes committed changes to the specified remote. Optionally sets
+    the upstream tracking branch for new branches.
+
+    Args:
+        remote: Remote to push to (default: "origin").
+        branch: Branch to push (default: current branch).
+        force: If True, force push with --force-with-lease (safer than --force).
+        set_upstream: If True, sets the upstream tracking branch (-u flag).
+                      Use this when pushing a new branch for the first time.
+    """
+    # Resolve current branch if none specified
+    if not branch:
+        branch_result = await asyncio.create_subprocess_exec(
+            "git", "rev-parse", "--abbrev-ref", "HEAD",
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            cwd=_get_cwd(),
+        )
+        stdout, _ = await branch_result.communicate()
+        branch = stdout.decode("utf-8").strip()
+
+    args = ["push", remote, branch]
+
+    if set_upstream:
+        args.insert(1, "-u")
+    if force:
+        args.append("--force-with-lease")
+
+    result = await _run_gtr(args)
+    return _format_result(result, f"Pushed {branch} to {remote}")
+
+
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
