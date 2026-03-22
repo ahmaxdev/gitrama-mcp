@@ -21,6 +21,14 @@ import sys
 from typing import Optional
  
 from mcp.server.fastmcp import FastMCP
+
+# ---------------------------------------------------------------------------
+# Module version
+# ---------------------------------------------------------------------------
+
+__version__ = "1.3.2"
+
+
  
 # ---------------------------------------------------------------------------
 # Server initialisation
@@ -331,13 +339,14 @@ async def gitrama_stream_list() -> str:
 async def gitrama_health() -> str:
     """
     Check the Gitrama AI server health status.
- 
+
     Verifies connectivity to the Gitrama AI API and returns
-    the current server status. Useful for diagnosing issues
-    when other commands fail.
+    the current server status and MCP server version. Useful for
+    diagnosing issues when other commands fail.
     """
     result = await _run_gtr(["health"])
-    return _format_result(result, "Health check complete")
+    output = _format_result(result, "Health check complete")
+    return f"{output}\n\n🔖 Gitrama MCP Server: v{__version__}"
  
  
 # ---------------------------------------------------------------------------
@@ -478,7 +487,7 @@ def main():
     # TTY detection — if a human runs this directly, show help and exit
     if sys.stdin.isatty() and os.environ.get("GTR_MCP_TRANSPORT", "stdio") == "stdio":
         print("""
-🌿 Gitrama MCP Server v1.3.2
+🌿 Gitrama MCP Server v{__version__}
  
 This server is designed to run inside MCP-compatible AI clients.
  
