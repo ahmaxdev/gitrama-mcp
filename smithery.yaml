@@ -1,5 +1,18 @@
 name: gitrama-mcp
-description: AI Git workflow MCP server. Generates conventional commit messages, branch names, PR descriptions, and manages work streams. Works with Cursor, Claude Desktop, Claude Code, Windsurf, and VS Code.
+description: >
+  AI-powered Git intelligence for your IDE. Gitrama gives your AI assistant
+  deep repo awareness — commit messages, branch names, PR descriptions,
+  changelogs, pre-commit code review, risk-annotated diffs, full structural
+  health scans, and natural language repo Q&A (AskGIT). Works with Cursor,
+  Claude Desktop, Claude Code, Claude.ai, Windsurf, VS Code, and Zed.
+  No configuration required beyond pip install.
+ 
+version: "1.3.2"
+author: Alfonso Harding <alfonso@gitrama.ai>
+homepage: https://gitrama.ai
+repository: https://github.com/GitramaLLC/gitrama-mcp
+license: Proprietary
+ 
 tags:
   - git
   - ai

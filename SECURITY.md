@@ -132,5 +132,5 @@ We pin dependency versions and review updates regularly.
 
 | Date | Change |
 |------|--------|
-| 2026-03-13 | Revised security policy — v1.3.0 |
+| 2026-03-13 | Revised security policy — v1.3.2 |
 | 2026-03-02 | Initial security policy published |
